@@ -31,7 +31,12 @@ router.get("/login", (req, res)=>{
     res.sendFile(path.join(__dirname+"/../views/login.html"));
 })
 
-router.post("/login", async (req, res)=>{
+router.get("/users", async (req, res)=>{
+    let allUsers = await User.find();
+    res.send(allUsers);
+})
+
+router.post("/register", async (req, res)=>{
     try{
         
         let userPass = req.body.pass;
@@ -48,7 +53,8 @@ router.post("/login", async (req, res)=>{
                 
             });
             const userData = await formData.save();
-            res.sendFile(path.join(__dirname+"/../views/login.html"));
+            // res.sendFile(path.join(__dirname+"/../views/login.html"));
+            res.redirect("/login")
         }else{res.send("passwords are not matching!");}
 
     }catch(err){
@@ -58,7 +64,7 @@ router.post("/login", async (req, res)=>{
 
 });
 
-router.post("/", async (req, res)=>{
+router.post("/login", async (req, res)=>{
    try{
        let dashboard = fs.readFileSync(__dirname+"/../views/index.html", "utf-8");
        const emailUser = req.body.inputEmail;
