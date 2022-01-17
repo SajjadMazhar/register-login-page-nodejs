@@ -3,6 +3,7 @@ const User = require("../src/model/user");
 const router = new express.Router();
 const path = require("path");
 const fs = require("fs")
+const bcrypt = require("bcrypt")
 
 const populateHTML = (name, htmlContent)=>{
     let mainData = htmlContent.replace("{%userName%}", name);
@@ -40,14 +41,15 @@ router.post("/register", async (req, res)=>{
     try{
         
         let userPass = req.body.pass;
+        let encPass = bcrypt.hashSync(userPass, 10)
         if(userPass == req.body.cpass){
             const formData = new User({
                 fname:req.body.fullName,
                 username:req.body.userName,
                 email:req.body.emailId,
                 phone:req.body.phoneNum,
-                password:req.body.pass,
-                cpassword:userPass,
+                password:encPass,
+                cpassword:encPass,
                 gender:req.body.gender
 
                 
@@ -71,7 +73,7 @@ router.post("/login", async (req, res)=>{
        const password = req.body.inputPass;
        const userData = await User.find({$or:[{email:emailUser},{username:emailUser}]});
        let replacedContent = populateHTML(userData[0].fname, dashboard);
-       if(userData[0].password == password){
+       if(bcrypt.compare(userData[0].password, password)){
         res.write(replacedContent);
         res.status(200).send();
            
